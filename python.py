@@ -36,7 +36,6 @@ blank.geometry(d)
 blank.configure(bg='#000000')
 blank.title("Blank")
 blank.attributes("-fullscreen", True)
-blank.focus()
 
 def send_osc(message, address="192.168.2.10", port=53000):
     client = udp_client.SimpleUDPClient(address, port)
@@ -63,11 +62,20 @@ def win():
     pw("Win")
     inputtxt.config(state="readonly")
     printButton.config(state="disabled")
-    background.create_text(960,550, text=" Welcome BenSamZ ",fill="white",font=("Flood std", 90,  'bold'), anchor="center")
+    background.create_text(960,550, text=" ",fill="white",font=("Flood std", 90,  'bold'), anchor="center")
     #time.sleep(1)
     pw(send_osc('/cue/{8}/stop'))
     pw(send_osc('/cue/{10}/go'))
+    time.sleep(10)
+    background.destroy()
+    password.destroy()
+    time.sleep(2)
+    jon = tk.Label(task_window,text=" It Was Me All Along... ",font=("Flood std", 90,  'bold'),fg="green",bg="black")
+    jon.place(relx=0.5,rely=0.5,anchor="center")
+    time.sleep(5)
     task_window.destroy()
+    print("Win End")
+    runEnd()
 
 def tryagain():
     global tryagaintxt
@@ -79,6 +87,7 @@ def tryagain():
     inputtxt.config(state="normal")
     inputtxt.delete(0,'end')
     tryagaintxt.destroy()
+    
     tryagaintxt = tk.Label(password, text="Try Again",font=("Montserrat", 20, "italic"), justify="left", anchor="w")
 
 def printInput(*none):
@@ -103,17 +112,17 @@ def runTask():
     width,height=1920,1080 # set the variables
     task_window.geometry(d)
     task_window.configure(bg='#000000')
-    task_window.title("Ben")
+    task_window.title("Adam")
 
     background = tk.Canvas(task_window, width=1920, height=1080)
 
-    bgimage = Image.open("ben.png")
+    bgimage = Image.open("CIA.jpg")
     bgimage = bgimage.resize((1920,1080), Image.LANCZOS)
-    bgimage = ImageTk.PhotoImage(bgimage)
+    bgimage = ImageTk.PhotoImage(bgimage, master = background)
 
     background.create_image(960,540,anchor="center",image=bgimage)
 
-    background.create_text(100,885, text="Ben's Super Secret",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
+    background.create_text(100,885, text="Adam's Super Secret",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
     background.create_text(100,950, text="Login Page",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
     background.create_text(100,800, text="SLLET ",fill="magenta",font=("Flood std", 90,  'bold'), anchor="w")
     background.place(relx=0.5,rely=0.5,anchor="center")
@@ -124,10 +133,10 @@ def runTask():
     usertxt = tk.Label(password, text="Username: ",font=("Montserrat", 20), justify="left", anchor="w")
     usertxt.grid(column = 0, row = 0)
 
-    bentxt = tk.Entry(password, width = 20, font=("Montserrat", 20))
-    bentxt.insert(0, 'BenSamZ')
-    bentxt.config(state="readonly")
-    bentxt.grid(column = 1, row = 0)
+    adamtxt = tk.Entry(password, width = 20, font=("Montserrat", 20))
+    adamtxt.insert(0, 'TheDoctor')
+    adamtxt.config(state="readonly")
+    adamtxt.grid(column = 1, row = 0)
 
     pwdtxt = tk.Label(password, text="Password: ",font=("Montserrat", 20), justify="left", anchor="w")
     pwdtxt.grid(column = 0, row = 1)
@@ -153,12 +162,12 @@ def runTask():
     task_window.attributes("-fullscreen", True)
     task_window.mainloop()
 
-def runIntro():
+def runEnd():
     # create a new instance of the media player
     player = vlc.MediaPlayer()
 
     # set the media to play
-    media = vlc.Media("Scene 1.mov")
+    media = vlc.Media("Scene 3.mov")
     player.set_media(media)
 
     # start playing the media
@@ -170,7 +179,6 @@ def runIntro():
     while player.get_state() != vlc.State.Ended:
         time.sleep(0.5)
     print("Done")
-    blank.focus()
     player.release()
 
 from pythonosc.dispatcher import Dispatcher
@@ -185,8 +193,8 @@ def default_handler(address, *args):
     print(f"DEFAULT {address}: {args}")
     if address == "/task":
         runTask()
-    elif address == "/intro":
-        runIntro()
+    elif address == "/end":
+        runEnd()
     
 dispatcher = Dispatcher()
 dispatcher.map("/something/*", print_handler)
@@ -197,7 +205,8 @@ port = 1337
 
 server = BlockingOSCUDPServer((ip, port), dispatcher)
 print("Ready")
-#runIntro()
-#runTask()
-server.serve_forever()  # Blocks forever
+runTask()
+print("Task End")
+runEnd()
+#server.serve_forever()  # Blocks forever
 print("End")
