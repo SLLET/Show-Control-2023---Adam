@@ -1,4 +1,4 @@
-   #!/usr/bin/env python
+#!/usr/bin/env python
 
 import tkinter as tk
 import datetime
@@ -28,14 +28,20 @@ def pw(*text):
 
 pw("Script Start")
 
-blank = tk.Tk()
-width,height=1920,1080 # set the variables 
-d=str(width)+"x"+str(height)
-width,height=1920,1080 # set the variables
-blank.geometry(d)
-blank.configure(bg='#000000')
-blank.title("Blank")
-blank.attributes("-fullscreen", True)
+hintgiven = False
+
+def blank():
+    blank = tk.Tk()
+    width,height=1920,1080 # set the variables 
+    d=str(width)+"x"+str(height)
+    width,height=1920,1080 # set the variables
+    blank.geometry(d)
+    blank.configure(bg='#000000')
+    blank.title("Blank")
+    blank.attributes("-fullscreen", True)
+    blank.mainloop()
+
+Thread(target=blank).start()
 
 def send_osc(message, address="192.168.2.10", port=53000):
     client = udp_client.SimpleUDPClient(address, port)
@@ -59,16 +65,19 @@ def alivetime():
     return "Uptime: "+out
 
 def win():
+    
     pw("Win")
     inputtxt.config(state="readonly")
     printButton.config(state="disabled")
     background.create_text(960,550, text=" ",fill="white",font=("Flood std", 90,  'bold'), anchor="center")
     #time.sleep(1)
-    pw(send_osc('/cue/{8}/stop'))
-    pw(send_osc('/cue/{10}/go'))
+    pw(send_osc('/cue/{27.5}/stop'))
+    pw(send_osc('/cue/{28}/go'))
     time.sleep(10)
     background.destroy()
     password.destroy()
+    uvbutton.destroy()
+    
     time.sleep(2)
     jon = tk.Label(task_window,text=" It Was Me All Along... ",font=("Flood std", 90,  'bold'),fg="green",bg="black")
     jon.place(relx=0.5,rely=0.5,anchor="center")
@@ -93,10 +102,17 @@ def tryagain():
 def printInput(*none):
     inp = inputtxt.get()
     pw("Password Inputted:",inp)
-    if inp == "test":
+    if inp.lower() == "bulls":
         Thread(target=win).start()
     else:
         Thread(target=tryagain).start()
+
+def uv():
+    global hintgiven
+    pw(hintgiven)
+    if hintgiven == False:
+        send_osc("/cue/{27}/go")
+        hintgiven = True
 
 def runTask():
     global inputtxt
@@ -105,6 +121,7 @@ def runTask():
     global tryagaintxt
     global password
     global task_window
+    global uvbutton
 
     task_window = tk.Tk()
     width,height=1920,1080 # set the variables 
@@ -122,9 +139,9 @@ def runTask():
 
     background.create_image(960,540,anchor="center",image=bgimage)
 
-    background.create_text(100,885, text="Adam's Super Secret",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
-    background.create_text(100,950, text="Login Page",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
-    background.create_text(100,800, text="SLLET ",fill="magenta",font=("Flood std", 90,  'bold'), anchor="w")
+    #background.create_text(100,885, text="Adam's Super Secret",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
+    #background.create_text(100,950, text="Login Page",font=("Montserrat", 50,  'bold'), fill="blue", anchor="w")
+    #background.create_text(100,800, text="SLLET ",fill="magenta",font=("Flood std", 90,  'bold'), anchor="w")
     background.place(relx=0.5,rely=0.5,anchor="center")
 
     password = tk.Frame(task_window, padx=5, pady=5)
@@ -155,6 +172,9 @@ def runTask():
 
     tryagaintxt = tk.Label(password, text="Try Again",font=("Montserrat", 20, "italic"), justify="left", anchor="w")
 
+    uvbutton = tk.Button(task_window, text="Clue", font=("Montserrat", 40), command = uv)
+    uvbutton.place(relx=0.99,rely=0.95,anchor="e")
+        
     #password = tk.Text(task_window, height=1, width=30, font=("Montserrat", 20))
     #password.pack()
     #password.insert(tk.END, "Just a text Widget\nin two lines\n")
@@ -167,7 +187,7 @@ def runEnd():
     player = vlc.MediaPlayer()
 
     # set the media to play
-    media = vlc.Media("Scene 3.mov")
+    media = vlc.Media("Scene 3.mp4")
     player.set_media(media)
 
     # start playing the media
@@ -192,9 +212,9 @@ def print_handler(address, *args):
 def default_handler(address, *args):
     print(f"DEFAULT {address}: {args}")
     if address == "/task":
-        runTask()
+        Thread(target=runTask).start()
     elif address == "/end":
-        runEnd()
+        Thread(target=runEnd).start()
     
 dispatcher = Dispatcher()
 dispatcher.map("/something/*", print_handler)
@@ -205,8 +225,8 @@ port = 1337
 
 server = BlockingOSCUDPServer((ip, port), dispatcher)
 print("Ready")
-runTask()
-print("Task End")
-runEnd()
-#server.serve_forever()  # Blocks forever
+#runTask()
+#print("Task End")
+#runEnd()
+server.serve_forever()  # Blocks forever
 print("End")
